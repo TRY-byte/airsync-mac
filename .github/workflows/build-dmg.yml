@@ -19,23 +19,25 @@ jobs:
       - name: Archive (Self Compiled scheme, with retry for flaky icontool)
         run: |
           set +e
-          for i in 1 2 3 4 5; do
+          i=1
+          while [ $i -le 5 ]; do
             echo "Archive attempt $i..."
-            xcodebuild archive \
-              -project AirSync.xcodeproj \
-              -scheme "AirSync Self Compiled" \
-              -configuration Release \
-              -destination 'generic/platform=macOS' \
-              -archivePath build/AirSync.xcarchive \
-              CODE_SIGN_IDENTITY="-" \
-              CODE_SIGN_STYLE=Manual \
-              CODE_SIGNING_REQUIRED=YES \
-              CODE_SIGNING_ALLOWED=YES
+            xcodebuild archive -project AirSync.xcodeproj -scheme "AirSync Self Compiled" -configuration Release -destination "generic/platform=macOS" -archivePath build/AirSync.xcarchive CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual CODE_SIGNING_REQUIRED=YES CODE_SIGNING_ALLOWED=YES
             code=$?
             if [ $code -eq 0 ]; then
               echo "Archive succeeded on attempt $i"
               exit 0
-            elif [ $code -eq 65 ]; then
+            fi
+            if [ $code -ne 65 ]; then
+              echo "Got unexpected exit code $code, not retrying"
+              exit $code
+            fi
+            echo "Got exit 65, retrying..."
+            sleep 5
+            i=$((i+1))
+          done
+          echo "All retries exhausted"
+          exit 65
             
       - name: Pull the .app out of the archive
         run: |
