@@ -25,9 +25,12 @@ jobs:
             -destination 'generic/platform=macOS' \
             -archivePath build/AirSync.xcarchive \
             CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGNING_REQUIRED=YES \
+            CODE_SIGNING_ALLOWED=YES \
+            ASSETCATALOG_COMPILER_SKIP_APP_STORE_DEPLOYMENT=YES \
+            COMPILER_INDEX_STORE_ENABLE=NO
+            
       - name: Pull the .app out of the archive
         run: |
           mkdir -p build/export
